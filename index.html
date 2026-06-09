@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AURA Carbon - Cinematic Carbon Footprint Analytics Platform</title>
+    <meta name="description" content="Aura Carbon is a premium carbon footprint analytics dashboard. Monitor, understand, and dramatically reduce your environmental footprint with personalized insights, historic tracking, and actionable habit adjustments.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="stars-container"></div>
+    <div class="radial-glow-bg"></div>
+
+    <header class="app-header">
+        <div class="header-logo">
+            <span class="logo-symbol">▲</span>
+            <h1>AURA CARBON</h1>
+            <span class="logo-accent-glow"></span>
+        </div>
+        <div class="header-vitals">
+            <span id="timezone-status" class="vital-badge">LOCAL TIME: 2026-06-09</span>
+            <span id="system-status" class="vital-badge status-active">ANALYTICS: ACTIVE</span>
+        </div>
+    </header>
+
+    <main class="dashboard-grid">
+        <!-- CALCULATOR CARD -->
+        <section class="glass-card calculator-card" id="section-calculator">
+            <div class="card-header">
+                <span class="header-tag">01 / INPUTS</span>
+                <h2>Consumption Metrics</h2>
+                <p class="subtitle">Log your average weekly/monthly environmental activities.</p>
+            </div>
+            
+            <form id="calculator-form" class="calculator-form" onsubmit="event.preventDefault();">
+                <!-- Electricity -->
+                <div class="slider-group">
+                    <div class="slider-meta">
+                        <label for="input-electricity">Electricity Consumption</label>
+                        <span class="slider-value" id="val-electricity">150 kWh</span>
+                    </div>
+                    <input type="range" id="input-electricity" min="0" max="1000" value="150" class="neon-slider slider-cyan">
+                    <span class="slider-hint">Monthly residential utility electricity usage.</span>
+                </div>
+
+                <!-- Petrol Vehicle -->
+                <div class="slider-group">
+                    <div class="slider-meta">
+                        <label for="input-petrol">Petrol Vehicle Travel</label>
+                        <span class="slider-value" id="val-petrol">400 km</span>
+                    </div>
+                    <input type="range" id="input-petrol" min="0" max="3000" value="400" class="neon-slider slider-violet">
+                    <span class="slider-hint">Distance driven in private petrol vehicle per month.</span>
+                </div>
+
+                <!-- LPG Cooking Gas -->
+                <div class="slider-group">
+                    <div class="slider-meta">
+                        <label for="input-lpg">Cooking Gas (LPG)</label>
+                        <span class="slider-value" id="val-lpg">14 kg</span>
+                    </div>
+                    <input type="range" id="input-lpg" min="0" max="100" value="14" class="neon-slider slider-rose">
+                    <span class="slider-hint">Weight of Liquefied Petroleum Gas consumed per month.</span>
+                </div>
+
+                <!-- Dietary Habits - Meat meals -->
+                <div class="slider-group">
+                    <div class="slider-meta">
+                        <label for="input-meat-meals">Diet: Heavy Meat Meals</label>
+                        <span class="slider-value" id="val-meat-meals">7 / week</span>
+                    </div>
+                    <input type="range" id="input-meat-meals" min="0" max="21" value="7" class="neon-slider slider-orange">
+                    <span class="slider-hint">Meals containing beef, lamb, pork, or poultry per week.</span>
+                </div>
+
+                <!-- Dietary Habits - Plant meals -->
+                <div class="slider-group">
+                    <div class="slider-meta">
+                        <label for="input-plant-meals">Diet: Plant-Based Meals</label>
+                        <span class="slider-value" id="val-plant-meals">14 / week</span>
+                    </div>
+                    <input type="range" id="input-plant-meals" min="0" max="21" value="14" class="neon-slider slider-emerald">
+                    <span class="slider-hint">Fully vegetarian or vegan meals consumed per week.</span>
+                </div>
+
+                <!-- Action Button -->
+                <button type="button" id="btn-submit-log" class="btn-neon glow-emerald">
+                    <span class="btn-text">LOG CONSUMPTION DATA</span>
+                    <span class="btn-glow-layer"></span>
+                </button>
+            </form>
+        </section>
+
+        <!-- ANALYTICS CARD -->
+        <section class="glass-card analytics-card" id="section-analytics">
+            <div class="card-header">
+                <span class="header-tag">02 / ANALYTICS</span>
+                <h2>Impact Assessment</h2>
+                <p class="subtitle">Real-time calculations and comparative statistics.</p>
+            </div>
+
+            <div class="analytics-content">
+                <!-- Emissions Gauge -->
+                <div class="emissions-gauge-container">
+                    <div class="svg-gauge-wrapper">
+                        <svg viewBox="0 0 100 100" class="svg-gauge">
+                            <circle class="gauge-bg" cx="50" cy="50" r="42"></circle>
+                            <circle class="gauge-fill" id="gauge-fill-bar" cx="50" cy="50" r="42" stroke-dasharray="264" stroke-dashoffset="264"></circle>
+                        </svg>
+                        <div class="gauge-text-overlay">
+                            <span class="gauge-value" id="gauge-co2-value">0.00</span>
+                            <span class="gauge-unit">kg CO₂e/mo</span>
+                        </div>
+                    </div>
+                    <div class="annual-estimate-box">
+                        <p>Projected Annual Footprint</p>
+                        <h3 id="annual-tons-value">0.00 Tons</h3>
+                    </div>
+                </div>
+
+                <!-- Emissions Category Breakdown -->
+                <div class="emissions-breakdown">
+                    <h3>Sector Breakdown</h3>
+                    
+                    <div class="breakdown-bar-group">
+                        <div class="bar-meta">
+                            <span>Utility Electricity</span>
+                            <span id="breakdown-val-elec">0.00 kg</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill fill-cyan" id="breakdown-fill-elec" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="breakdown-bar-group">
+                        <div class="bar-meta">
+                            <span>Petrol Transport</span>
+                            <span id="breakdown-val-petrol">0.00 kg</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill fill-violet" id="breakdown-fill-petrol" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="breakdown-bar-group">
+                        <div class="bar-meta">
+                            <span>LPG Cooking Gas</span>
+                            <span id="breakdown-val-lpg">0.00 kg</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill fill-rose" id="breakdown-fill-lpg" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="breakdown-bar-group">
+                        <div class="bar-meta">
+                            <span>Dietary Footprint</span>
+                            <span id="breakdown-val-diet">0.00 kg</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill fill-emerald" id="breakdown-fill-diet" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Global & National Comparison -->
+            <div class="comparison-panel">
+                <h3>Comparative Analysis</h3>
+                <div class="comparison-scale-container">
+                    <div class="scale-ticks">
+                        <div class="tick" style="left: 10%"><span>Eco Target (2t)</span></div>
+                        <div class="tick" style="left: 30%"><span>Global Avg (4.8t)</span></div>
+                        <div class="tick" style="left: 85%"><span>US Avg (16t)</span></div>
+                    </div>
+                    <div class="scale-bar">
+                        <div class="scale-progress" id="comparison-scale-progress" style="width: 0%"></div>
+                        <div class="scale-marker" id="comparison-scale-marker" style="left: 0%"></div>
+                    </div>
+                    <p class="comparison-status-text" id="comparison-status-message">Calculating carbon comparison...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ACTION HABITS CARD -->
+        <section class="glass-card full-width-card habit-tracker-card" id="section-habits">
+            <div class="card-header">
+                <span class="header-tag">03 / REDUCE</span>
+                <h2>Actionable Reduction Strategies</h2>
+                <p class="subtitle">Select lifestyle micro-changes to simulate target footprint reductions.</p>
+            </div>
+
+            <div class="habits-sim-container">
+                <div class="habits-grid">
+                    <!-- Habit 1 -->
+                    <div class="habit-card" data-habit-id="led_bulb">
+                        <input type="checkbox" id="habit-led_bulb" class="habit-checkbox">
+                        <label for="habit-led_bulb" class="habit-label">
+                            <span class="habit-checkbox-visual"></span>
+                            <div class="habit-info">
+                                <h4>Switch to Smart LED Bulbs</h4>
+                                <p>Reduce utility energy footprints.</p>
+                                <span class="habit-savings">-15% Energy Impact</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Habit 2 -->
+                    <div class="habit-card" data-habit-id="carpool">
+                        <input type="checkbox" id="habit-carpool" class="habit-checkbox">
+                        <label for="habit-carpool" class="habit-label">
+                            <span class="habit-checkbox-visual"></span>
+                            <div class="habit-info">
+                                <h4>Carpool or Transit Weekly</h4>
+                                <p>Cut vehicle mileage by 25%.</p>
+                                <span class="habit-savings">-25% Transport Impact</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Habit 3 -->
+                    <div class="habit-card" data-habit-id="meatless_monday">
+                        <input type="checkbox" id="habit-meatless_monday" class="habit-checkbox">
+                        <label for="habit-meatless_monday" class="habit-label">
+                            <span class="habit-checkbox-visual"></span>
+                            <div class="habit-info">
+                                <h4>Meatless Mondays (3 meals/wk)</h4>
+                                <p>Exchange meat for plant meals.</p>
+                                <span class="habit-savings">-4.5 kg CO₂e / week</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Habit 4 -->
+                    <div class="habit-card" data-habit-id="cold_wash">
+                        <input type="checkbox" id="habit-cold_wash" class="habit-checkbox">
+                        <label for="habit-cold_wash" class="habit-label">
+                            <span class="habit-checkbox-visual"></span>
+                            <div class="habit-info">
+                                <h4>Cold Water Laundry Cycles</h4>
+                                <p>Reduce heating power consumed.</p>
+                                <span class="habit-savings">-10 kWh / month</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Habit 5 -->
+                    <div class="habit-card" data-habit-id="unplug_standby">
+                        <input type="checkbox" id="habit-unplug_standby" class="habit-checkbox">
+                        <label for="habit-unplug_standby" class="habit-label">
+                            <span class="habit-checkbox-visual"></span>
+                            <div class="habit-info">
+                                <h4>Zero-Standby Power Cut</h4>
+                                <p>Unplug phantom loads when idle.</p>
+                                <span class="habit-savings">-15 kWh / month</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Habit 6 -->
+                    <div class="habit-card" data-habit-id="local_produce">
+                        <input type="checkbox" id="habit-local_produce" class="habit-checkbox">
+                        <label for="habit-local_produce" class="habit-label">
+                            <span class="habit-checkbox-visual"></span>
+                            <div class="habit-info">
+                                <h4>Support Local Produce</h4>
+                                <p>Reduce food transport/packaging emissions.</p>
+                                <span class="habit-savings">-10% Diet Footprint</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Reduction Simulation Box -->
+                <div class="simulation-display">
+                    <h3>Simulated Footprint After Habits</h3>
+                    <div class="sim-score-wrapper">
+                        <div class="sim-score-metric">
+                            <span id="sim-score-value">0.00</span>
+                            <span class="sim-unit">Tons / year</span>
+                        </div>
+                        <div class="sim-reduction-badge" id="sim-reduction-badge">0% Reduced</div>
+                    </div>
+                    <div class="sim-target-indicator" id="sim-target-status">
+                        Evaluating target goal status...
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- HISTORY TRENDS CARD -->
+        <section class="glass-card history-card" id="section-history">
+            <div class="card-header">
+                <span class="header-tag">04 / HISTORY</span>
+                <h2>Historical Performance Tracker</h2>
+                <p class="subtitle">Monitor your carbon trends across multiple logs.</p>
+            </div>
+
+            <div class="history-content">
+                <!-- SVG Chart -->
+                <div class="chart-container">
+                    <svg id="history-chart" class="history-svg-chart" viewBox="0 0 500 220" preserveAspectRatio="none">
+                        <!-- Grid lines are generated dynamically via JS -->
+                        <g id="chart-grid-lines"></g>
+                        <!-- Chart Line -->
+                        <path id="chart-line-path" d="" fill="none" stroke="url(#cyan-violet-glow)" stroke-width="4"></path>
+                        <!-- Glow Layer -->
+                        <path id="chart-line-glow" d="" fill="none" stroke="url(#cyan-violet-glow)" stroke-width="8" opacity="0.3"></path>
+                        <!-- Data Points -->
+                        <g id="chart-data-points"></g>
+                        <!-- Area Fill -->
+                        <path id="chart-area-path" d="" fill="url(#chart-area-gradient)"></path>
+
+                        <!-- Gradients definition -->
+                        <defs>
+                            <linearGradient id="cyan-violet-glow" x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0%" stop-color="#06b6d4" />
+                                <stop offset="50%" stop-color="#8b5cf6" />
+                                <stop offset="100%" stop-color="#f43f5e" />
+                            </linearGradient>
+                            <linearGradient id="chart-area-gradient" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.2" />
+                                <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.0" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <!-- Tooltip container -->
+                    <div id="chart-tooltip" class="chart-tooltip" style="opacity: 0;"></div>
+                </div>
+
+                <!-- History Actions & Table -->
+                <div class="history-table-wrapper">
+                    <div class="table-actions">
+                        <span id="log-count-indicator">0 logs available</span>
+                        <button type="button" id="btn-clear-history" class="btn-text-only">Clear All History</button>
+                    </div>
+                    <table class="neon-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Electricity</th>
+                                <th>Petrol</th>
+                                <th>LPG</th>
+                                <th>Diet</th>
+                                <th>Total monthly</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body">
+                            <tr>
+                                <td colspan="6" class="table-empty-message">No logged footprints recorded.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- QUIZ & BADGES CARD -->
+        <section class="glass-card quiz-card" id="section-quiz">
+            <div class="card-header">
+                <span class="header-tag">05 / KNOWLEDGE</span>
+                <h2>Eco-Awareness Quiz</h2>
+                <p class="subtitle">Test your knowledge and earn cinematic badges.</p>
+            </div>
+
+            <div class="quiz-content">
+                <!-- Active Quiz -->
+                <div id="quiz-active-container">
+                    <div class="quiz-progress-bar">
+                        <div class="quiz-progress-fill" id="quiz-progress-fill" style="width: 20%"></div>
+                    </div>
+                    <h3 id="quiz-question-text">Loading question...</h3>
+                    <div class="quiz-options-list" id="quiz-options-list">
+                        <!-- Options generated dynamically -->
+                    </div>
+                    <div class="quiz-explanation-box" id="quiz-explanation-box" style="display: none;">
+                        <p id="quiz-explanation-text"></p>
+                        <button type="button" id="btn-next-question" class="btn-neon-small">Next Question</button>
+                    </div>
+                </div>
+
+                <!-- Quiz Complete -->
+                <div id="quiz-complete-container" style="display: none;">
+                    <h3>Quiz Complete!</h3>
+                    <p class="complete-score">Score: <span id="quiz-final-score">0</span> / 5</p>
+                    <button type="button" id="btn-restart-quiz" class="btn-neon-small">Restart Quiz</button>
+                </div>
+
+                <!-- Badge Shelf -->
+                <div class="badge-shelf-container">
+                    <h3>Unlocked Badge Inventory</h3>
+                    <div class="badge-shelf">
+                        <div class="badge-item locked" id="badge-eco-novice">
+                            <div class="badge-icon">🌱</div>
+                            <span class="badge-title">Eco Novice</span>
+                            <span class="badge-desc">Start your green journey.</span>
+                        </div>
+                        <div class="badge-item locked" id="badge-habit-hero">
+                            <div class="badge-icon">⚡</div>
+                            <span class="badge-title">Habit Hero</span>
+                            <span class="badge-desc">Adopt 3 active habits.</span>
+                        </div>
+                        <div class="badge-item locked" id="badge-quiz-wizard">
+                            <div class="badge-icon">🎓</div>
+                            <span class="badge-title">Quiz Wizard</span>
+                            <span class="badge-desc">Score 5/5 in the quiz.</span>
+                        </div>
+                        <div class="badge-item locked" id="badge-carbon-neutralist">
+                            <div class="badge-icon">🍃</div>
+                            <span class="badge-title">Carbon Shield</span>
+                            <span class="badge-desc">Below target (2t/yr).</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="app-footer">
+        <p>&copy; 2026 AURA Carbon Engine. Designed for absolute footprint transparency.</p>
+    </footer>
+
+    <!-- Core App JS -->
+    <script src="app.js"></script>
+</body>
+</html>
