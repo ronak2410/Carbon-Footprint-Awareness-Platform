@@ -102,6 +102,11 @@ document.addEventListener("DOMContentLoaded", () => {
         inputLpg: document.getElementById("input-lpg"),
         inputMeat: document.getElementById("input-meat-meals"),
         inputPlant: document.getElementById("input-plant-meals"),
+        inputLogDate: document.getElementById("input-log-date"),
+        btnExportCsv: document.getElementById("btn-export-csv"),
+        donutChartSvg: document.getElementById("donut-chart-svg"),
+        donutTotalVal: document.getElementById("donut-total-val"),
+        insightsListContainer: document.getElementById("insights-list-container"),
 
         // Input Value Labels
         lblElec: document.getElementById("val-electricity"),
@@ -172,6 +177,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const formattedDate = new Date().toISOString().split("T")[0];
     document.getElementById("timezone-status").innerText = `SYSTEM TIME: ${formattedDate}`;
 
+    // Set default date in Date Picker to today
+    if (elements.inputLogDate) {
+        elements.inputLogDate.value = formattedDate;
+    }
+
     // 3. Calculation & UI Update Functions (Client Side Live Preview)
     function performLiveCalculations() {
         // Read raw inputs
@@ -211,6 +221,8 @@ document.addEventListener("DOMContentLoaded", () => {
         updateBreakdownBars(elecCo2, petrolCo2, lpgCo2, dietCo2, totalMonthlyCo2);
         updateComparisonScale(totalAnnualCo2Tons);
         simulateHabitsReduction();
+        renderDonutChart(elecCo2, petrolCo2, lpgCo2, dietCo2);
+        updatePersonalizedInsights(elecCo2, petrolCo2, lpgCo2, dietCo2);
     }
 
     function updateGauge(monthlyKg, annualTons) {
@@ -367,6 +379,245 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // Dynamic Donut Chart Renderer
+    function renderDonutChart(elec, petrol, lpg, diet) {
+        const svg = elements.donutChartSvg;
+        if (!svg) return;
+        
+        // Clear previous segments
+        const existingSegments = svg.querySelectorAll(".donut-segment, .donut-bg");
+        existingSegments.forEach(el => el.remove());
+
+        const total = elec + petrol + lpg + diet;
+        
+        // Update center text value
+        if (elements.donutTotalVal) {
+            elements.donutTotalVal.innerText = total.toFixed(1);
+        }
+
+        const radius = 35;
+        const circumference = 2 * Math.PI * radius; // ~219.91
+
+        if (total === 0) {
+            // Draw dummy grey background circle
+            const bgCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            bgCircle.setAttribute("cx", "50");
+            bgCircle.setAttribute("cy", "50");
+            bgCircle.setAttribute("r", radius);
+            bgCircle.setAttribute("stroke", "rgba(255, 255, 255, 0.05)");
+            bgCircle.setAttribute("stroke-width", "8");
+            bgCircle.setAttribute("fill", "none");
+            bgCircle.setAttribute("class", "donut-bg");
+            svg.appendChild(bgCircle);
+            return;
+        }
+
+        const sectors = [
+            { val: elec, color: "var(--neon-cyan)", glow: "var(--neon-cyan-glow)" },
+            { val: petrol, color: "var(--neon-violet)", glow: "var(--neon-violet-glow)" },
+            { val: lpg, color: "var(--neon-rose)", glow: "var(--neon-rose-glow)" },
+            { val: diet, color: "var(--neon-emerald)", glow: "var(--neon-emerald-glow)" }
+        ];
+
+        let currentAngle = -90; // Start at 12 o'clock
+
+        sectors.forEach(sector => {
+            if (sector.val <= 0) return;
+
+            const percentage = sector.val / total;
+            const strokeDashLength = percentage * circumference;
+            
+            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circle.setAttribute("cx", "50");
+            circle.setAttribute("cy", "50");
+            circle.setAttribute("r", radius);
+            circle.setAttribute("stroke", sector.color);
+            circle.setAttribute("stroke-width", "8");
+            circle.setAttribute("fill", "none");
+            circle.setAttribute("stroke-dasharray", `${strokeDashLength} ${circumference}`);
+            circle.setAttribute("transform", `rotate(${currentAngle} 50 50)`);
+            circle.setAttribute("class", "donut-segment");
+            circle.style.filter = `drop-shadow(0 0 4px ${sector.glow})`;
+            
+            svg.appendChild(circle);
+
+            currentAngle += percentage * 360;
+        });
+    }
+
+    // Dynamic Personalized Insights
+    function updatePersonalizedInsights(elec, petrol, lpg, diet) {
+        const container = elements.insightsListContainer;
+        if (!container) return;
+
+        const total = elec + petrol + lpg + diet;
+        if (total === 0) {
+            container.innerHTML = `<p class="insight-empty">Adjust consumption inputs to see tailored reduction insights.</p>`;
+            return;
+        }
+
+        const sectors = [
+            { id: "electricity", name: "Utility Electricity", val: elec, icon: "⚡" },
+            { id: "petrol", name: "Petrol Transport", val: petrol, icon: "🚗" },
+            { id: "lpg", name: "LPG Cooking Gas", val: lpg, icon: "🔥" },
+            { id: "diet", name: "Dietary Choices", val: diet, icon: "🥗" }
+        ];
+
+        // Sort to find the highest sector
+        sectors.sort((a, b) => b.val - a.val);
+        const primarySector = sectors[0];
+        const pct = ((primarySector.val / total) * 100).toFixed(0);
+
+        // Recommendations dictionary
+        const recommendationsDict = {
+            electricity: [
+                {
+                    title: "Optimize Temperature Settings",
+                    desc: "Adjusting your AC or heating thermostat by just 2°C can save up to 10% on monthly electric consumption.",
+                    saving: "~15-30 kg CO₂e / month"
+                },
+                {
+                    title: "Switch to Star Rated Appliances",
+                    desc: "Transition to 5-star energy efficient refrigerators, ceiling fans, and LED light bulbs to reduce passive baseload energy draws.",
+                    saving: "~20-40 kg CO₂e / month"
+                },
+                {
+                    title: "Eliminate Phantom Loads",
+                    desc: "Use smart power strips or unplug electronics (TVs, gaming consoles, chargers) when idle to eradicate standby electricity loss.",
+                    saving: "~10-15 kg CO₂e / month"
+                }
+            ],
+            petrol: [
+                {
+                    title: "Combine Trips & Plan Routes",
+                    desc: "Combine weekly errands into single, optimized route loops to avoid cold engine starts which burn 20% more fuel in the first 8 km.",
+                    saving: "~15-35 kg CO₂e / month"
+                },
+                {
+                    title: "Maintain Proper Tire Pressure",
+                    desc: "Under-inflated tires increase rolling resistance, reducing fuel economy by up to 3%. Check tire pressures monthly.",
+                    saving: "~5-10 kg CO₂e / month"
+                },
+                {
+                    title: "Embrace Active or Shared Transit",
+                    desc: "For trips under 3 km, try walking or biking. Alternatively, replace 1 driving day per week with public transit or carpooling.",
+                    saving: "~25-60 kg CO₂e / month"
+                }
+            ],
+            lpg: [
+                {
+                    title: "Maximize Cooking Efficiency",
+                    desc: "Always keep lids on pots to trap steam, heat ingredients to room temperature before lighting, and use pressure cookers which reduce cooking time by 70%.",
+                    saving: "~5-10 kg CO₂e / month"
+                },
+                {
+                    title: "Optimize Burner Flames",
+                    desc: "Adjust burner flame size so it doesn't wrap around the sides of the pot, preventing wasted heat dispersion. Clean burners regularly.",
+                    saving: "~2-5 kg CO₂e / month"
+                },
+                {
+                    title: "Switch to Induction Cooking",
+                    desc: "Electric induction cooktops transfer 90% of heat directly to the pan (compared to only 40% for gas burners), making it cleaner and more efficient.",
+                    saving: "~10-15 kg CO₂e / month"
+                }
+            ],
+            diet: [
+                {
+                    title: "Substitute High-Impact Meats",
+                    desc: "Swapping beef or lamb for poultry or fish just 3 times a week dramatically reduces dietary footprint (beef has 8-10x the carbon impact of chicken).",
+                    saving: "~30-65 kg CO₂e / month"
+                },
+                {
+                    title: "Eradicate Household Food Waste",
+                    desc: "Up to 30% of grocery purchases are discarded. Meal plan, freeze leftovers early, and organize your fridge to use ingredients before expiry.",
+                    saving: "~15-30 kg CO₂e / month"
+                },
+                {
+                    title: "Choose Local and Seasonal Foods",
+                    desc: "Buying local produce avoids trans-oceanic cargo transport emissions and heavy plastic preservation packaging.",
+                    saving: "~8-20 kg CO₂e / month"
+                }
+            ]
+        };
+
+        const recs = recommendationsDict[primarySector.id];
+        
+        let html = `
+            <div class="insight-highlight-box">
+                <span class="insight-icon">${primarySector.icon}</span>
+                <div class="insight-summary-text">
+                    <p>Your primary emission contributor is <strong>${primarySector.name}</strong>, representing <strong>${pct}%</strong> of your monthly footprint.</p>
+                </div>
+            </div>
+            <div class="insights-list">
+        `;
+
+        recs.forEach(rec => {
+            html += `
+                <div class="insight-item-card">
+                    <div class="insight-card-main">
+                        <h4>${rec.title}</h4>
+                        <p>${rec.desc}</p>
+                    </div>
+                    <div class="insight-card-badge">
+                        <span>Est. Savings:</span>
+                        <strong>${rec.saving}</strong>
+                    </div>
+                </div>
+            `;
+        });
+
+        html += `</div>`;
+        container.innerHTML = html;
+    }
+
+    // CSV Exporter
+    async function exportHistoryToCSV() {
+        try {
+            const response = await fetch("/api/history");
+            if (!response.ok) throw new Error("Failed to fetch historical database entries for export.");
+            const history = await response.json();
+            
+            if (history.length === 0) {
+                alert("No logs available to export.");
+                return;
+            }
+
+            let csvRows = [];
+            csvRows.push("Date,Electricity (kWh),Petrol Transport (km),Cooking Gas LPG (kg),Heavy Meat Meals (weekly),Plant Meals (weekly),Electricity Emissions (kg CO2e),Petrol Emissions (kg CO2e),LPG Emissions (kg CO2e),Diet Emissions (kg CO2e),Total Monthly Emissions (kg CO2e)");
+
+            history.forEach(log => {
+                const row = [
+                    log.date,
+                    log.electricity_kwh,
+                    log.petrol_km,
+                    log.lpg_kg,
+                    log.meat_meals,
+                    log.plant_meals,
+                    log.breakdown.electricity.toFixed(2),
+                    log.breakdown.petrol.toFixed(2),
+                    log.breakdown.lpg.toFixed(2),
+                    log.breakdown.diet.toFixed(2),
+                    log.total_co2e.toFixed(2)
+                ].join(",");
+                csvRows.push(row);
+            });
+
+            const csvString = csvRows.join("\n");
+            const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `carbon_footprint_report_${new Date().toISOString().split("T")[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            alert(error.message);
+        }
+    }
+
     // 5. API calls to SQLite backend
     async function loadLogsHistory() {
         try {
@@ -396,7 +647,8 @@ document.addEventListener("DOMContentLoaded", () => {
             petrol_km: parseFloat(elements.inputPetrol.value),
             lpg_kg: parseFloat(elements.inputLpg.value),
             meat_meals: parseInt(elements.inputMeat.value),
-            plant_meals: parseInt(elements.inputPlant.value)
+            plant_meals: parseInt(elements.inputPlant.value),
+            date: elements.inputLogDate ? elements.inputLogDate.value : null
         };
 
         try {
@@ -695,6 +947,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Clear history
         elements.btnClearHistory.addEventListener("click", clearLogsHistory);
+
+        // Export CSV
+        if (elements.btnExportCsv) {
+            elements.btnExportCsv.addEventListener("click", exportHistoryToCSV);
+        }
 
         // Habits checkboxes
         const habitCards = document.querySelectorAll(".habit-card");

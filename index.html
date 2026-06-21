@@ -87,6 +87,15 @@
                     <span class="slider-hint">Fully vegetarian or vegan meals consumed per week.</span>
                 </div>
 
+                <!-- Custom Log Date -->
+                <div class="slider-group">
+                    <div class="slider-meta">
+                        <label for="input-log-date">Consumption Log Date</label>
+                    </div>
+                    <input type="date" id="input-log-date" class="neon-date-input">
+                    <span class="slider-hint">Specify target date for this log (defaults to current date).</span>
+                </div>
+
                 <!-- Action Button -->
                 <button type="button" id="btn-submit-log" class="btn-neon glow-emerald">
                     <span class="btn-text">LOG CONSUMPTION DATA</span>
@@ -166,6 +175,21 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Donut Chart Visualization -->
+                <div class="emissions-donut-container">
+                    <h3>Proportional Impact</h3>
+                    <div class="svg-donut-wrapper">
+                        <svg viewBox="0 0 100 100" class="svg-donut" id="donut-chart-svg">
+                            <!-- Donut segments are generated dynamically via JS -->
+                        </svg>
+                        <div class="donut-center-overlay">
+                            <span class="donut-overlay-label">TOTAL</span>
+                            <span class="donut-overlay-val" id="donut-total-val">0.0</span>
+                            <span class="donut-overlay-unit">kg CO₂e/mo</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Global & National Comparison -->
@@ -182,6 +206,14 @@
                         <div class="scale-marker" id="comparison-scale-marker" style="left: 0%"></div>
                     </div>
                     <p class="comparison-status-text" id="comparison-status-message">Calculating carbon comparison...</p>
+                </div>
+            </div>
+
+            <!-- Personalized Insights Panel -->
+            <div class="insights-panel" id="personal-insights-panel">
+                <h3>Personalized Action Insights</h3>
+                <div class="insights-container" id="insights-list-container">
+                    <!-- Tailored insights will be injected here dynamically -->
                 </div>
             </div>
         </section>
@@ -336,7 +368,10 @@
                 <div class="history-table-wrapper">
                     <div class="table-actions">
                         <span id="log-count-indicator">0 logs available</span>
-                        <button type="button" id="btn-clear-history" class="btn-text-only">Clear All History</button>
+                        <div class="history-buttons-group">
+                            <button type="button" id="btn-export-csv" class="btn-neon-extra-small">Export CSV Report</button>
+                            <button type="button" id="btn-clear-history" class="btn-text-only">Clear All History</button>
+                        </div>
                     </div>
                     <table class="neon-table">
                         <thead>

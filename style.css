@@ -384,8 +384,8 @@ body {
 /* 7. Analytics Layout & SVG Gauges */
 .analytics-content {
     display: grid;
-    grid-template-columns: 1.2fr 1.8fr;
-    gap: 2rem;
+    grid-template-columns: 1.2fr 1.8fr 1.5fr;
+    gap: 2.5rem;
     align-items: center;
     margin-bottom: 2rem;
 }
@@ -1146,5 +1146,225 @@ body {
     .badge-shelf {
         grid-template-columns: repeat(2, 1fr);
         gap: 1.5rem;
+    }
+}
+
+/* ==========================================================================
+   AURA CARBON - NEW FEATURES STYLES
+   ========================================================================== */
+
+/* Custom Date Input styling */
+.neon-date-input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.95rem;
+    outline: none;
+    transition: var(--transition-smooth);
+    width: 100%;
+}
+.neon-date-input:focus {
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 10px var(--neon-cyan-glow);
+    background: rgba(255, 255, 255, 0.08);
+}
+/* Style webkit calendar picker indicator */
+.neon-date-input::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+    opacity: 0.6;
+    transition: var(--transition-smooth);
+}
+.neon-date-input::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+/* Donut Chart Styling */
+.emissions-donut-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+}
+.emissions-donut-container h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 0.2rem;
+}
+.svg-donut-wrapper {
+    position: relative;
+    width: 150px;
+    height: 150px;
+}
+.svg-donut {
+    width: 100%;
+    height: 100%;
+}
+.donut-segment {
+    transition: stroke-dasharray 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.donut-center-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 75%;
+    pointer-events: none;
+}
+.donut-overlay-label {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+.donut-overlay-val {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #ffffff;
+    line-height: 1.1;
+}
+.donut-overlay-unit {
+    font-size: 0.55rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-top: 0.1rem;
+}
+
+/* Personalized Insights Panel Styling */
+.insights-panel {
+    border-top: 1px solid var(--border-light);
+    padding-top: 1.8rem;
+    margin-top: 2rem;
+}
+.insights-panel h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 1.2rem;
+}
+.insight-empty {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 1rem;
+}
+.insight-highlight-box {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    background: rgba(6, 182, 212, 0.05);
+    border: 1px solid rgba(6, 182, 212, 0.15);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+.insight-icon {
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.insight-summary-text p {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    line-height: 1.5;
+}
+.insights-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.2rem;
+}
+.insight-item-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    padding: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1rem;
+    transition: var(--transition-smooth);
+}
+.insight-item-card:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.04);
+    transform: translateY(-2px);
+}
+.insight-card-main h4 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.4rem;
+}
+.insight-card-main p {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    line-height: 1.45;
+}
+.insight-card-badge {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    font-size: 0.7rem;
+    padding-top: 0.6rem;
+    border-top: 1px dashed var(--border-light);
+}
+.insight-card-badge span {
+    color: var(--text-muted);
+}
+.insight-card-badge strong {
+    color: var(--neon-emerald);
+    font-weight: 700;
+}
+
+/* CSV Buttons Styling */
+.history-buttons-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.btn-neon-extra-small {
+    border: 1px solid var(--neon-cyan);
+    background: rgba(6, 182, 212, 0.08);
+    border-radius: 6px;
+    color: #ffffff;
+    padding: 0.4rem 0.9rem;
+    font-weight: 600;
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: var(--transition-smooth);
+    box-shadow: 0 0 6px rgba(6, 182, 212, 0.1);
+}
+.btn-neon-extra-small:hover {
+    background: var(--neon-cyan);
+    box-shadow: 0 0 12px var(--neon-cyan-glow);
+}
+
+/* Medium screen responsive rules */
+@media(max-width: 1200px) {
+    .analytics-content {
+        grid-template-columns: 1.2fr 1.8fr;
+    }
+    .emissions-donut-container {
+        grid-column: span 2;
+        margin-top: 1.5rem;
+    }
+    .insights-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media(max-width: 768px) {
+    .insights-list {
+        grid-template-columns: 1fr;
     }
 }

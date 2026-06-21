@@ -10,6 +10,14 @@ app = FastAPI(title="Carbon Footprint Analytics Agent Core")
 
 DB_PATH = "friday_carbon.db"
 
+# Emission Reference Constants
+CO2E_ELECTRICITY_FACTOR = 0.85  # kg CO2e per kWh
+CO2E_PETROL_FACTOR = 0.20       # kg CO2e per km
+CO2E_LPG_FACTOR = 3.00          # kg CO2e per kg
+CO2E_MEAT_MEAL_FACTOR = 2.50    # kg CO2e per meal
+CO2E_PLANT_MEAL_FACTOR = 1.00   # kg CO2e per meal
+WEEKS_PER_MONTH = 4.33          # To scale weekly meals to monthly emissions
+
 # Initialize SQLite database
 def init_db():
     conn = sqlite3.connect(DB_PATH)
@@ -31,6 +39,33 @@ def init_db():
         )
     """)
     conn.commit()
+    
+    # Check if DB is empty and seed if necessary
+    cursor.execute("SELECT COUNT(*) FROM carbon_logs")
+    count = cursor.fetchone()[0]
+    if count == 0:
+        # Insert 4 historical records showing a positive trend (reducing footprint)
+        # Scale weekly meal choices to monthly using WEEKS_PER_MONTH (4.33)
+        samples = [
+            (450.0, 1200.0, 25.0, 15, 5, "2026-02-15T12:00:00"),
+            (380.0, 900.0, 20.0, 12, 8, "2026-03-15T12:00:00"),
+            (280.0, 600.0, 16.0, 9, 12, "2026-04-15T12:00:00"),
+            (200.0, 450.0, 14.0, 7, 14, "2026-05-15T12:00:00")
+        ]
+        
+        for elec, petrol, lpg, meat, plant, dt in samples:
+            elec_co2 = elec * CO2E_ELECTRICITY_FACTOR
+            petrol_co2 = petrol * CO2E_PETROL_FACTOR
+            lpg_co2 = lpg * CO2E_LPG_FACTOR
+            diet_co2 = ((meat * CO2E_MEAT_MEAL_FACTOR) + (plant * CO2E_PLANT_MEAL_FACTOR)) * WEEKS_PER_MONTH
+            total = elec_co2 + petrol_co2 + lpg_co2 + diet_co2
+            cursor.execute("""
+                INSERT INTO carbon_logs (
+                    electricity_kwh, petrol_km, lpg_kg, meat_meals, plant_meals,
+                    electricity_co2e, petrol_co2e, lpg_co2e, diet_co2e, total_co2e, timestamp
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (elec, petrol, lpg, meat, plant, elec_co2, petrol_co2, lpg_co2, diet_co2, total, dt))
+        conn.commit()
     conn.close()
 
 # Initialize Database on startup
@@ -43,14 +78,9 @@ class FootprintInput(BaseModel):
     lpg_kg: float
     meat_meals: int
     plant_meals: int
+    date: str = None
 
-# Emission Reference Constants
-CO2E_ELECTRICITY_FACTOR = 0.85  # kg CO2e per kWh
-CO2E_PETROL_FACTOR = 0.20       # kg CO2e per km
-CO2E_LPG_FACTOR = 3.00          # kg CO2e per kg
-CO2E_MEAT_MEAL_FACTOR = 2.50    # kg CO2e per meal
-CO2E_PLANT_MEAL_FACTOR = 1.00   # kg CO2e per meal
-WEEKS_PER_MONTH = 4.33          # To scale weekly meals to monthly emissions
+# End of validation schemas
 
 @app.post("/api/calculate")
 def calculate_emissions(data: FootprintInput):
@@ -120,7 +150,10 @@ def save_log(data: FootprintInput):
     
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    now_str = datetime.now().isoformat()
+    
+    now_str = data.date if data.date else datetime.now().isoformat()
+    if now_str and "T" not in now_str:
+        now_str += "T12:00:00"
     
     cursor.execute("""
         INSERT INTO carbon_logs (
@@ -193,12 +226,12 @@ def reset_history():
 # Static File Routes
 @app.get("/")
 def serve_index():
-    return FileResponse("index.html")
+    return FileResponse("index.html", headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
 
 @app.get("/style.css")
 def serve_style():
-    return FileResponse("style.css")
+    return FileResponse("style.css", headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
 
 @app.get("/app.js")
 def serve_app():
-    return FileResponse("app.js")
+    return FileResponse("app.js", headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
