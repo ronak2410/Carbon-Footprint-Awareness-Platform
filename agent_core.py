@@ -656,9 +656,14 @@ def get_logs_history() -> list[HistoryEntry]:
                 """
                 SELECT id, electricity_kwh, petrol_km, lpg_kg, meat_meals, plant_meals,
                        electricity_co2e, petrol_co2e, lpg_co2e, diet_co2e, total_co2e, timestamp
-                FROM   carbon_logs
-                ORDER  BY timestamp ASC
-                LIMIT  15
+                FROM (
+                    SELECT id, electricity_kwh, petrol_km, lpg_kg, meat_meals, plant_meals,
+                           electricity_co2e, petrol_co2e, lpg_co2e, diet_co2e, total_co2e, timestamp
+                    FROM   carbon_logs
+                    ORDER  BY timestamp DESC
+                    LIMIT  15
+                )
+                ORDER BY timestamp ASC
                 """
             ).fetchall()
     except sqlite3.Error as exc:

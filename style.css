@@ -675,9 +675,15 @@ body {
     font-weight: 700;
 }
 
-.habit-card:hover {
+.habit-card:hover,
+.habit-card:focus-within {
     border-color: rgba(255, 255, 255, 0.12);
     background: rgba(255, 255, 255, 0.04);
+}
+
+.habit-card:focus-within {
+    outline: 2px solid var(--neon-cyan);
+    outline-offset: 3px;
 }
 
 .habit-checkbox:checked ~ .habit-label {

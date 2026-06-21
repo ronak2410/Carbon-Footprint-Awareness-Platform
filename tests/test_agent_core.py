@@ -309,9 +309,19 @@ class TestHistory:
             assert target_dates.index("2024-01-01") < target_dates.index("2024-06-01")
 
     def test_history_capped_at_15_entries(self) -> None:
-        for _ in range(20):
-            client.post("/api/logs", json=SAMPLE)
-        assert len(client.get("/api/history").json()) <= 15
+        """Verify history is capped at 15 and returns the 15 most recent entries oldest-first."""
+        client.post("/api/reset")
+        # Log 20 entries with sequential dates
+        for i in range(1, 21):
+            date_str = f"2026-01-{i:02d}"
+            client.post("/api/logs", json={**SAMPLE, "date": date_str})
+        
+        history = client.get("/api/history").json()
+        assert len(history) == 15
+        # The oldest returned entry should be the 6th logged one (2026-01-06)
+        assert history[0]["date"] == "2026-01-06"
+        # The latest returned entry should be the 20th logged one (2026-01-20)
+        assert history[-1]["date"] == "2026-01-20"
 
     def test_seed_data_present_on_fresh_db(self) -> None:
         """A freshly initialised database must contain exactly 4 seed records."""
