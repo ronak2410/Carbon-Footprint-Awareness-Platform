@@ -1,49 +1,27 @@
-# ── Stage 1: Dependency builder ────────────────────────────────────────────
-FROM python:3.11-slim AS builder
+FROM python:3.11-slim
 
-# Prevent bytecode files and force unbuffered output
+# Prevent Python from writing .pyc files and force unbuffered output
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
-
-WORKDIR /build
-
-# Install dependencies in an isolated layer for layer-caching efficiency
-COPY requirements.txt .
-RUN pip install --upgrade pip \
- && pip install --prefix=/install --no-cache-dir -r requirements.txt
-
-
-# ── Stage 2: Runtime image ──────────────────────────────────────────────────
-FROM python:3.11-slim AS runtime
-
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    # Default port; Hugging Face Spaces sets $PORT at runtime
     PORT=7860
-
-# Create a non-root user for security
-RUN addgroup --system appgroup \
- && adduser  --system --ingroup appgroup --no-create-home appuser
 
 WORKDIR /code
 
-# Copy installed packages from builder stage
-COPY --from=builder /install /usr/local
+# Install dependencies first (separate layer for Docker cache efficiency)
+COPY requirements.txt /code/requirements.txt
+RUN pip install --upgrade pip \
+ && pip install --no-cache-dir -r /code/requirements.txt
 
-# Copy application source
-COPY --chown=appuser:appgroup . /code
+# Copy application source files
+COPY . /code
 
-# Drop root privileges
-USER appuser
-
-# Expose the default port
+# Expose the default Hugging Face Spaces port
 EXPOSE 7860
 
-# Health check so container orchestrators know when the app is ready
-HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:${PORT:-7860}/api/health')"
+# Health check so the platform knows when the app is ready
+HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:7860/api/health', timeout=5)"
 
-# Run uvicorn with production settings (1 worker, no reload)
-CMD ["sh", "-c", "uvicorn agent_core:app --host 0.0.0.0 --port ${PORT:-7860} --workers 1 --log-level info"]
+# Start uvicorn server
+CMD ["sh", "-c", "uvicorn agent_core:app --host 0.0.0.0 --port ${PORT:-7860} --log-level info"]
