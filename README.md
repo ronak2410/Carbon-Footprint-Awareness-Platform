@@ -1,1 +1,1 @@
----\ntitle: Carbon Footprint Dashboard\nemoji: \uD83D\uDC33\ncolorFrom: green\ncolorTo: blue\nsdk: docker\npinned: false\n---\n
+---\ntitle: Carbon Footprint Dashboard\nsdk: docker\npinned: false\n---
