@@ -77,13 +77,33 @@ pinned: false
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/` | Serve dashboard UI |
-| `POST` | `/api/calculate` | Calculate emissions breakdown from inputs |
-| `POST` | `/api/logs` | Save a consumption log entry |
-| `GET` | `/api/history` | Retrieve last 15 log entries |
-| `POST` | `/api/reset` | Clear all history logs |
+| `GET`  | `/`               | Serve dashboard UI |
+| `POST` | `/api/calculate`  | Calculate emissions breakdown from inputs |
+| `POST` | `/api/logs`       | Save a consumption log entry |
+| `GET`  | `/api/history`    | Retrieve last 15 log entries |
+| `POST` | `/api/reset`      | Clear all history logs |
+| `GET`  | `/api/health`     | Service health check (database status + version) |
+| `GET`  | `/api/docs`       | Auto-generated Swagger UI documentation |
 
 ---
+
+## Testing
+
+```bash
+# Install test dependencies
+pip install pytest httpx
+
+# Run the full test suite (55 tests)
+python -m pytest tests/ -v
+```
+
+**Test Coverage:**
+- Input validation (boundary values, type checks, date format)
+- Emission calculation accuracy per IPCC/IEA factors
+- API response structure and HTTP status codes
+- Database persistence, ordering, and reset
+- Security response headers (CSP, X-Frame-Options, HSTS)
+- Static file serving
 
 ## Local Development
 
@@ -110,13 +130,16 @@ docker run -p 7860:7860 aura-carbon
 ## Project Structure
 
 ```
-├── agent_core.py    # FastAPI backend + SQLite + emission calculations
-├── index.html       # Dashboard UI
-├── app.js           # Frontend logic (calculator, charts, quiz, habits)
-├── style.css        # Cinematic neon UI styling
-├── Dockerfile       # Hugging Face Spaces container config
-├── requirements.txt # Python dependencies
-└── README.md        # This file
+├── agent_core.py       # FastAPI backend + SQLite + emission calculations
+├── index.html          # Dashboard UI (WCAG-accessible, ARIA-annotated)
+├── app.js              # Frontend logic (calculator, charts, quiz, habits)
+├── style.css           # Cinematic neon glassmorphism UI styling
+├── Dockerfile          # Multi-stage Docker build for Hugging Face Spaces
+├── requirements.txt    # Python dependencies
+├── tests/
+│   ├── __init__.py
+│   └── test_agent_core.py  # 55 pytest tests (validation, security, DB)
+└── README.md           # This file
 ```
 
 ---
