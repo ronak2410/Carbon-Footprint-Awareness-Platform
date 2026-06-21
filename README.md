@@ -90,11 +90,11 @@ pinned: false
 ## Testing
 
 ```bash
-# Install test dependencies
-pip install pytest httpx
+# Install runtime and test dependencies
+pip install -r requirements.txt
 
-# Run the full test suite (55 tests)
-python -m pytest tests/ -v
+# Run the full test suite (73 tests)
+python -m pytest
 ```
 
 **Test Coverage:**
@@ -104,6 +104,7 @@ python -m pytest tests/ -v
 - Database persistence, ordering, and reset
 - Security response headers (CSP, X-Frame-Options, HSTS)
 - Static file serving
+- End-to-end API workflow checks and request body size limits
 
 ## Local Development
 
