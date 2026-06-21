@@ -135,11 +135,11 @@ docker run -p 7860:7860 aura-carbon
 ├── index.html          # Dashboard UI (WCAG-accessible, ARIA-annotated)
 ├── app.js              # Frontend logic (calculator, charts, quiz, habits)
 ├── style.css           # Cinematic neon glassmorphism UI styling
-├── Dockerfile          # Multi-stage Docker build for Hugging Face Spaces
+├── Dockerfile          # Docker build configuration for Hugging Face Spaces
 ├── requirements.txt    # Python dependencies
 ├── tests/
 │   ├── __init__.py
-│   └── test_agent_core.py  # 55 pytest tests (validation, security, DB)
+│   └── test_agent_core.py  # 73 comprehensive pytest tests (validation, security, DB)
 └── README.md           # This file
 ```
 
